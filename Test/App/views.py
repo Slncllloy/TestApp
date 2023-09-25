@@ -49,7 +49,7 @@ class lesson_status_by_product(ListAPIView):
 
         try:
             product_by_name = Product.objects.filter(name = product_name).first()
-            lesson_by_product = Lesson.objects.filter(products = product_by_name)
+            lesson_by_product = Lesson.objects.filter(products = product_by_name).select_related('products')
             lesson_status_by_lesson = LessonStatus.objects.filter(lesson__in = lesson_by_product,user = user)
 
             return lesson_status_by_lesson
@@ -80,7 +80,7 @@ class is_viewed_lessons_count(APIView):
         global IS_VIEWED_LESSONS_COUNT_ERROR
 
         try:
-            count = LessonStatus.objects.filter(is_viewed=True).count()
+            count = LessonStatus.objects.filter(is_viewed=True).select_related('user').count()
             
             return is_viewed_lessons_count.resp(count)
         except:
@@ -130,7 +130,12 @@ class user_count_in_product(APIView):
 
             if product_by_name is None:
                 return Response(USER_IN_PRODUCT_COUNT_ERROR, status=404)
-            users_count = ProductAccess.objects.filter(products=product_by_name).count()
+            
+            is_exists_product = ProductAccess.objects.filter(products=product_by_name).select_related('products').exists()
+
+            if not is_exists_product:
+                return Response(USER_IN_PRODUCT_COUNT_ERROR,status=404)
+            users_count = ProductAccess.objects.filter(products=product_by_name).select_related('products').count()
 
             return user_count_in_product.resp(users_count)
         except:
@@ -156,11 +161,11 @@ class percentage_of_users_in_product_and_all_users(APIView):
 
             if product_by_name is None:
                 return Response(PERCENTAGE_ERROR, status=404)
-            is_exist_product_access=ProductAccess.objects.filter(products=product_by_name).count()
+            is_exist_product_access=ProductAccess.objects.filter(products=product_by_name).select_related('products')
 
             if not is_exist_product_access:
                 return Response(PERCENTAGE_ERROR,status=404)   
-            count_product_access_by_product = ProductAccess.objects.filter(products=product_by_name).count()
+            count_product_access_by_product = ProductAccess.objects.filter(products=product_by_name).select_related('products').count()
             users_count = User.objects.all().count()
 
             percentage = (count_product_access_by_product / users_count) * 100
