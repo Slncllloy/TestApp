@@ -19,6 +19,9 @@ IS_VIEWED_LESSONS_COUNT_ERROR = {
 LESSON_STATUS_ERROR = {
     "detail": "lesson_status does not exist."
 }
+PERCENTAGE_ERROR= {
+    "detail": "percentage does not exist."
+}
 
 class lesson_status(ListAPIView):
     serializer_class = sLesson_status_with_lesson_and_product
@@ -132,3 +135,37 @@ class user_count_in_product(APIView):
             return user_count_in_product.resp(users_count)
         except:
             return Response(USER_IN_PRODUCT_COUNT_ERROR,status=404)
+        
+class percentage_of_users_in_product_and_all_users(APIView):
+
+    @staticmethod
+    def resp(val):
+            return Response(
+                            {
+                                'percentage_of_users_in_product_and_all_users':val
+                            }
+                        )
+    
+    def get(self, request, *args, **kwargs):
+        global PERCENTAGE_ERROR
+
+        product_name = self.kwargs['product_name']
+
+        try:
+            product_by_name = Product.objects.filter(name=product_name).first()
+
+            if product_by_name is None:
+                return Response(PERCENTAGE_ERROR, status=404)
+            is_exist_product_access=ProductAccess.objects.filter(products=product_by_name).count()
+
+            if not is_exist_product_access:
+                return Response(PERCENTAGE_ERROR,status=404)   
+            count_product_access_by_product = ProductAccess.objects.filter(products=product_by_name).count()
+            users_count = User.objects.all().count()
+
+            percentage = (count_product_access_by_product / users_count) * 100
+            percentage_format = round(percentage, 2)
+
+            return user_count_in_product.resp(percentage_format)
+        except:
+            return Response(PERCENTAGE_ERROR,status=404)
