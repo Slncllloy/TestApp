@@ -37,3 +37,10 @@ class LessonStatus(models.Model):
             self.is_viewed = True
         super().save(*args, **kwargs)
 
+class Video(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    video = models.FileField(upload_to='videos/')
+
+    def __str__(self):
+        return self.title

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Product,ProductAccess,Lesson,LessonStatus,User
+from .models import Product,ProductAccess,Lesson,LessonStatus,User,Video
 
 
 class sUser(serializers.ModelSerializer):
@@ -43,6 +43,11 @@ class sLesson_status(serializers.ModelSerializer):
                   'watch_timer',
                   'is_viewed',
                   'last_updated')
+        
+class VideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Video
+        fields = '__all__'
 
 #-------------------------------------------------------------------------------------#
 
