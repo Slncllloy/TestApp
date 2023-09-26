@@ -197,3 +197,6 @@ class video_detail(APIView):
 
         return render(request, 'movie_detail.html', context)
     
+class update_watch_time():
+    def post(self, request):
+        pass
