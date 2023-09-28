@@ -54,7 +54,7 @@ class lesson_status_by_product(ListAPIView):
 
         try:
             product_by_name = Product.objects.filter(name = product_name).first()
-            lesson_by_product = Lesson.objects.filter(products = product_by_name).select_related('products')
+            lesson_by_product = Lesson.objects.filter(products = product_by_name).select_related('products').first()
             lesson_status_by_lesson = LessonStatus.objects.filter(lesson__in = lesson_by_product,user = user)
 
             return lesson_status_by_lesson
@@ -85,7 +85,7 @@ class is_viewed_lessons_count(APIView):
         global IS_VIEWED_LESSONS_COUNT_ERROR
 
         try:
-            count = LessonStatus.objects.filter(is_viewed=True).select_related('user').count()
+            count = LessonStatus.objects.select_related('user').filter(is_viewed=True).count()
             
             return is_viewed_lessons_count.resp(count)
         except:
