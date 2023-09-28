@@ -22,4 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('App.urls')),
     path('auth/',include('rest_framework.urls')),
+
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

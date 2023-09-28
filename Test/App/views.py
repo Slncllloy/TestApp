@@ -2,6 +2,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, get_object_or_404
+
+from django.shortcuts import render, get_object_or_404
+from .models import Video
 
 from .serializers import *
 from django.db.models import Sum
@@ -22,6 +26,7 @@ LESSON_STATUS_ERROR = {
 PERCENTAGE_ERROR= {
     "detail": "percentage does not exist."
 }
+
 
 class lesson_status(ListAPIView):
     serializer_class = sLesson_status_with_lesson_and_product
@@ -49,7 +54,7 @@ class lesson_status_by_product(ListAPIView):
 
         try:
             product_by_name = Product.objects.filter(name = product_name).first()
-            lesson_by_product = Lesson.objects.filter(products = product_by_name).select_related('products')
+            lesson_by_product = Lesson.objects.filter(products = product_by_name).select_related('products').first()
             lesson_status_by_lesson = LessonStatus.objects.filter(lesson__in = lesson_by_product,user = user)
 
             return lesson_status_by_lesson
@@ -80,7 +85,7 @@ class is_viewed_lessons_count(APIView):
         global IS_VIEWED_LESSONS_COUNT_ERROR
 
         try:
-            count = LessonStatus.objects.filter(is_viewed=True).select_related('user').count()
+            count = LessonStatus.objects.select_related('user').filter(is_viewed=True).count()
             
             return is_viewed_lessons_count.resp(count)
         except:
@@ -174,3 +179,24 @@ class percentage_of_users_in_product_and_all_users(APIView):
             return user_count_in_product.resp(percentage_format)
         except:
             return Response(PERCENTAGE_ERROR,status=404)
+        
+        
+# class video_detail(APIView):
+
+#     def get(self, request, *args, **kwargs):
+#         tytle = self.kwargs['title']
+#         video = get_object_or_404(Video, title=tytle)
+
+#         serializer = VideoSerializer(video)
+#         return Response(serializer.data)
+
+class video_detail(APIView):
+    def get(self, request, *args, **kwargs):
+        video = get_object_or_404(Video, title=kwargs["title"])
+        context = {'video_path': video.video.url}
+
+        return render(request, 'movie_detail.html', context)
+    
+class update_watch_time():
+    def post(self, request):
+        pass
